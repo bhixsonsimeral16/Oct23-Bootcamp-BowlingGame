@@ -8,12 +8,13 @@ public class ScoreManager : MonoBehaviour
     int totalScore = 0;
     bool isSpare = false;
     bool isStrike = false;
-    int[] frameScores = new int[10];
+    public int[] frameScores = new int[10];
 
     public int currentThrow { get; private set; } = 1;
     public int currentFrame { get; private set; } = 1;
 
     [SerializeField] GameManager gameManager;
+    [SerializeField] UIManager uiManager;
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +24,8 @@ public class ScoreManager : MonoBehaviour
 
     public void SetFrameScore(int score)
     {
+        uiManager.SetFrameValue(currentFrame, currentThrow, score);
+
         // Ball 1
         if (currentThrow == 1)
         {
@@ -49,6 +52,7 @@ public class ScoreManager : MonoBehaviour
                 {
                     isStrike = true;
                     currentFrame++;
+                    uiManager.ShowStrikeMessage();
                 }
 
                 gameManager.ResetAllPins();
@@ -77,7 +81,7 @@ public class ScoreManager : MonoBehaviour
             // If the score is 10 on second throw, go to next frame
             if (frameScores[currentFrame - 1] == 10)
             {
-                // Last frame, if the second throw is a spare or strike, go to next throw
+                // Last frame, if the second throw is a spare go to next throw
                 if (currentFrame == 10)
                 {
                     currentThrow++;
@@ -88,8 +92,16 @@ public class ScoreManager : MonoBehaviour
                     isSpare = true;
                     currentFrame++;
                     currentThrow = 1;
+                    uiManager.ShowSpareMessage();
                 }
             }
+
+            // Final frame, 2 strikes in a row
+            else if (frameScores[currentFrame - 1] == 20 && currentFrame == 10)
+            {
+                currentThrow++;
+            }
+            
             else
             {
                 if(currentFrame == 10)
@@ -138,5 +150,10 @@ public class ScoreManager : MonoBehaviour
         currentThrow = 1;
         currentFrame = 1;
         frameScores = new int[10];
+    }
+
+    public int[] GetFrameSores()
+    {
+        return frameScores;
     }
 }

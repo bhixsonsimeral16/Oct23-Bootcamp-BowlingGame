@@ -29,7 +29,12 @@ public class Ball : MonoBehaviour
             gameManager.SetNextThrow();
 
             Destroy(gameObject);
-        }      
+        }
+        else if (other.gameObject.CompareTag("Close-up"))
+        {
+            // Switch to close-up camera
+            gameManager.SwitchCamera();
+        }
     }
 
     void OnCollisionEnter(Collision other) 

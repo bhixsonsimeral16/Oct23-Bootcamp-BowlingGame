@@ -7,6 +7,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] PlayerController playerController;
     [SerializeField] ScoreManager scoreManager;
     [SerializeField] List<Pin> pins;
+    [SerializeField] UIManager uiManager;
+    [SerializeField] Camera mainCamera, closeUpCamera;
 
     bool isGameActive = false;
     // Start is called before the first frame update
@@ -27,6 +29,9 @@ public class GameManager : MonoBehaviour
     {
         isGameActive = true;
 
+        mainCamera.enabled = true;
+        closeUpCamera.enabled = false;
+
         // Get the first throw!
         playerController.StartThrow();
     }
@@ -43,24 +48,31 @@ public class GameManager : MonoBehaviour
 
     public void SetNextThrow()
     {
-        Invoke("NextThrow", 3f);
+        Invoke(nameof(NextThrow), 2f);
     }
 
     void NextThrow()
     {
+
+        int fallenPins = CalculateFallenPins();
+        scoreManager.SetFrameScore(fallenPins);
+
         if(scoreManager.currentFrame == 0)
         {
             Debug.Log("Game over!");
             Debug.Log($"Total score: {scoreManager.GetTotalScore()}");
+            uiManager.ShowGameOverUI(scoreManager.GetTotalScore());
         }
-        else
-        {
-            Debug.Log($"Frame {scoreManager.currentFrame} - Throw {scoreManager.currentThrow}");
-            scoreManager.SetFrameScore(CalculateFallenPins());
-            Debug.Log($"Current Score: {scoreManager.GetTotalScore()}");
 
-            playerController.StartThrow();
+        int frameTotal = 0;
+        for (int i = 0; i < scoreManager.currentFrame - 1; i++)
+        {
+            frameTotal += scoreManager.frameScores[i];
+            uiManager.SetFrameTotal(i, frameTotal);
         }
+
+        SwitchCamera();
+        playerController.StartThrow();
     }
 
     public int CalculateFallenPins()
@@ -85,5 +97,11 @@ public class GameManager : MonoBehaviour
         {
             pin.ResetPin();
         }
+    }
+
+    public void SwitchCamera()
+    {
+        mainCamera.enabled = !mainCamera.enabled;
+        closeUpCamera.enabled = !closeUpCamera.enabled;
     }
 }

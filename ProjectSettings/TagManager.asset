@@ -7,6 +7,7 @@ TagManager:
   - Boundary
   - Pin
   - Ball
+  - Close-up
   layers:
   - Default
   - TransparentFX

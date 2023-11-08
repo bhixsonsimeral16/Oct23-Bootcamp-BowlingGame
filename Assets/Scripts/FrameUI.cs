@@ -96,6 +96,7 @@ public class FrameUI : MonoBehaviour
                 {
                     txtThrow3.text = score.ToString();
                 }
+                txtFrame.text = frameScore.ToString();
             }
         }
     }
