@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] List<Pin> pins;
     [SerializeField] UIManager uiManager;
     [SerializeField] Camera mainCamera, closeUpCamera;
+    [SerializeField] public SoundManager soundManager;
 
     bool isGameActive = false;
     // Start is called before the first frame update

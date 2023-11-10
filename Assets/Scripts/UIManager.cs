@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject messageUIStrike, messageUISpare, gameOverUI;
     [SerializeField] TMP_Text scoreText;
     [SerializeField] float messageTime = 2f;
+    [SerializeField] private GameObject mobileCanvas;
 
     private FrameUI[] frames;
 
@@ -19,8 +20,13 @@ public class UIManager : MonoBehaviour
         messageUISpare.SetActive(false);
         messageUIStrike.SetActive(false);
         gameOverUI.SetActive(false);
+        mobileCanvas.SetActive(false);
         
         frames = frameHolder.GetComponentsInChildren<FrameUI>();
+
+#if UNITY_ANDROID || UNITY_IOS
+        mobileCanvas.SetActive(true);
+#endif
     }
 
     public void ResetFrameUIs()

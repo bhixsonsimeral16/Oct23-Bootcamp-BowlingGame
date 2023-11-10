@@ -9,6 +9,7 @@ public class ScoreManager : MonoBehaviour
     bool isSpare = false;
     bool isStrike = false;
     public int[] frameScores = new int[10];
+    List<int> frameScoreList = new List<int>();
 
     public int currentThrow { get; private set; } = 1;
     public int currentFrame { get; private set; } = 1;
@@ -30,12 +31,27 @@ public class ScoreManager : MonoBehaviour
         if (currentThrow == 1)
         {
             frameScores[currentFrame - 1] += score;
+            frameScoreList.Add(score);
 
             // if the previous frame was a spare, add the score to the previous frame
             if (isSpare)
             {
                 frameScores[currentFrame - 2] += score;
                 isSpare = false;
+            }
+            else
+            {
+                // If the previous frame was a strike, add the score to the previous frame
+                if (frameScoreList.Count >= 2 && frameScoreList[frameScoreList.Count - 2] == 10)
+                {
+                    frameScores[currentFrame - 2] += frameScoreList[currentFrame - 1];
+                }
+
+                // If the frame before the previous throw was a strike, add the current throw score to 2 frames ago
+                if (frameScoreList.Count >= 3 && frameScoreList[frameScoreList.Count - 3] == 10)
+                {
+                    frameScores[currentFrame - 3] += frameScoreList[currentFrame - 1];
+                }
             }
 
             if (score == 10)
@@ -51,7 +67,9 @@ public class ScoreManager : MonoBehaviour
                 else
                 {
                     isStrike = true;
+
                     currentFrame++;
+                    gameManager.soundManager.PlaySound("strike");
                     uiManager.ShowStrikeMessage();
                 }
 
@@ -71,11 +89,12 @@ public class ScoreManager : MonoBehaviour
         else if (currentThrow == 2)
         {
             frameScores[currentFrame - 1] += score;
+            frameScoreList.Add(score);
 
-            if(isStrike)
+            // If the frame before the previous throw was a strike, add the current throw score to 2 frames ago
+            if (frameScoreList.Count >= 3 && frameScoreList[frameScoreList.Count - 3] == 10)
             {
-                frameScores[currentFrame - 2] += frameScores[currentFrame - 1];
-                isStrike = false;
+                frameScores[currentFrame - 3] += frameScoreList[currentFrame - 1];
             }
 
             // If the score is 10 on second throw, go to next frame
@@ -92,6 +111,7 @@ public class ScoreManager : MonoBehaviour
                     isSpare = true;
                     currentFrame++;
                     currentThrow = 1;
+                    gameManager.soundManager.PlaySound("spare");
                     uiManager.ShowSpareMessage();
                 }
             }
@@ -150,6 +170,7 @@ public class ScoreManager : MonoBehaviour
         currentThrow = 1;
         currentFrame = 1;
         frameScores = new int[10];
+        frameScoreList = new List<int>();
     }
 
     public int[] GetFrameSores()

@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float playerMoveSpeed;
+    float mobileHorizontalAxis;
 
     [SerializeField] float arrowHorizontalTravel;
     [SerializeField] float throwForce = 50f;
@@ -12,6 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform ballSpawnPoint;
     [SerializeField] List<Rigidbody> ballList = new List<Rigidbody>();
     [SerializeField] Animator arrowAnimator;
+    [SerializeField] SoundManager soundManager;
 
     float arrowMinZ, arrowMaxZ;
     Vector3 ballOffset;
@@ -63,11 +65,12 @@ public class PlayerController : MonoBehaviour
     {
         if(!ballThrown)
         {
-        // Move the throwing arrow without bounds
-        // throwingArrow.position += throwingArrow.right * Input.GetAxis("Horizontal") * playerMoveSpeed * Time.deltaTime;
-
         // Move the throwing arrow in bounds
+#if UNITY_STANDALONE
         float movePostition = -1 * Input.GetAxis("Horizontal") * playerMoveSpeed * Time.deltaTime;
+#elif UNITY_ANDROID || UNITY_IOS
+        float movePostition = -1 * mobileHorizontalAxis * playerMoveSpeed * Time.deltaTime;
+#endif
         throwingArrow.position = new Vector3(throwingArrow.position.x, throwingArrow.position.y,
                                              Mathf.Clamp(throwingArrow.position.z + movePostition, arrowMinZ, arrowMaxZ));
 
@@ -81,9 +84,33 @@ public class PlayerController : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Space) && !ballThrown)
         {
-            ballThrown = true;
-            bowlingBallRigidbody.AddForce(throwingArrow.forward * throwForce, ForceMode.Impulse);
-            arrowAnimator.SetBool("Aiming", false);
+            ShootBall();
         }
+    }
+
+    public void ShootBall()
+    {
+        ballThrown = true;
+        bowlingBallRigidbody.AddForce(throwingArrow.forward * throwForce, ForceMode.Impulse);
+        soundManager.PlaySound("ballThrow");
+        soundManager.PlaySound("ballRolling");
+        arrowAnimator.SetBool("Aiming", false);
+    }
+
+    public void SetMobileHorizontalAxis(bool isLeft)
+    {
+        if (isLeft)
+        {
+            mobileHorizontalAxis = -1;
+        }
+        else
+        {
+            mobileHorizontalAxis = 1;
+        }
+    }
+
+    public void ResetMobileHorizontalAxis()
+    {
+        mobileHorizontalAxis = 0;
     }
 }
